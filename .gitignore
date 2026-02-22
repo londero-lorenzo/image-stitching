@@ -3,7 +3,15 @@
 # exclude python environment folder
 .env
 
-# exclude image folrders
+# exclude pycache
+**/__pycache__/
+
+
+# exclude image folders
 raw_images
 composed
 output
+
+# exclude imges
+*.png
+*.jpg
