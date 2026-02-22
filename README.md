@@ -13,11 +13,13 @@ Lo script le unisce in un’unica immagine tramite OpenCV (cv2.Stitcher)
 Il tool supporta:
 	- stitching di immagini “raw” da una cartella
 	- estensione incrementale di una composizione già esistente
+	- gestione dell’ordine di composizione (prima o dopo l’immagine già composta)
+	- configurazione via CLI
 	
 	
 # Perché esiste
 
-Nasce con l'obiettivo di esportare appunti universitari da DrawNote, software comodo per diagrammi su canvas infinita, in quanto l’export completo non è pratico. Questo tool permette di:
+Nasce con l'obiettivo di esportare appunti universitari da DrawNote, software comodo per diagrammi su canvas infinita, ma l’export completo non è pratico. Questo tool permette di:
 
 	- ricostruire diagrammi di grandi dimensioni
 	- mantenere qualità elevata
@@ -35,6 +37,7 @@ Il processo svolge:
 
 - Python
 - OpenCV
+- CLI basata su argparse
 
 # Stato del progetto
 

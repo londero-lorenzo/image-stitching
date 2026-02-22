@@ -1,65 +1,123 @@
 import cv2
 import os
+import argparse
 
-"""
-function to sort image names in order to maintain the original order
 
-E.g.
-"1.jpg" comes before "10.jpg"
-"""
-def image_name_smart_sort(x:list):
+def image_name_smart_sort(files: list):
     number_names = []
     string_names = []
-    for n in x:
-        name = n[:n.rfind('.')]
+
+    for n in files:
+        name, ext = os.path.splitext(n)
         try:
-            format = n[n.rfind('.'):]
-            number_names.append((float(name), name, format))
-        except:
+            number_names.append((float(name), name, ext))
+        except ValueError:
             string_names.append(n)
-    output = [f"{name}{format}" for _, name, format in sorted(number_names, key=lambda x: x[0])]
-    output.extend(sorted(string_names))
-    return output
-    
-# Load all images
-attempt = 2
 
-raw_images_path = f'./raw_images/input_{attempt}'
-output_compose_path = f'./composed/'
+    sorted_numeric = [
+        f"{name}{ext}"
+        for _, name, ext in sorted(number_names, key=lambda x: x[0])
+    ]
 
-os.makedirs(output_compose_path, exist_ok=True)
-format = '.jpg'
-last_composition = f"composition_{attempt-1}{format}"
-last_composition_path = os.path.join(output_compose_path, last_composition)
-output_file_name = f"composition_{attempt}{format}"
-
-images = []
+    return sorted_numeric + sorted(string_names)
 
 
-print(f"Reading raw images from {raw_images_path}")
-raw_images_read = 0
-sorted_images = image_name_smart_sort(os.listdir(raw_images_path))
-for file in image_name_smart_sort(os.listdir(raw_images_path)):
-    if file.endswith(format):
-        img = cv2.imread(os.path.join(raw_images_path, file))
-        images.append(img)
-        raw_images_read += 1
+def load_images_from_folder(folder_path, extension=".jpg"):
+    images = []
+    files = image_name_smart_sort(os.listdir(folder_path))
 
-print(f"Read {raw_images_read} raw images.")
-print(sorted_images)
+    for file in files:
+        if file.lower().endswith(extension):
+            img = cv2.imread(os.path.join(folder_path, file))
+            if img is not None:
+                images.append(img)
 
-if os.path.exists(last_composition_path):
-    print(f"Reading composed image: {last_composition_path}")
-    img = cv2.imread(last_composition_path)
-    images.append(img)
-    print(f"Composed image read.")
+    return images
 
-# OpenCV stitcher inizializing
-stitcher = cv2.Stitcher_create()
-status, result = stitcher.stitch(images)
 
-if status == cv2.Stitcher_OK:
-    cv2.imwrite(os.path.join(output_compose_path, output_file_name), result)
-    print("Success!")
-else:
-    print(f"Error during stitching. Code error: {status}")
+def stitch_images(images, output_path):
+    if len(images) < 2:
+        print("Need at least 2 images to stitch.")
+        return
+
+    stitcher = cv2.Stitcher_create()
+    status, result = stitcher.stitch(images)
+
+    if status == cv2.Stitcher_OK:
+        cv2.imwrite(output_path, result)
+        print(f"Stitching successful. Saved to {output_path}")
+    else:
+        print(f"Error during stitching. Code: {status}")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Stitch DrawNote exported images."
+    )
+
+    parser.add_argument(
+        "--raw_images",
+        type=str,
+        required=True,
+        help="Folder containing raw images"
+    )
+
+    parser.add_argument(
+        "--composed_image",
+        type=str,
+        help="Path to an already composed image"
+    )
+
+    parser.add_argument(
+        "--order",
+        choices=["before", "after"],
+        help="Whether to use composed image before or after raw images"
+    )
+
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="composition_result.jpg",
+        help="Output file path"
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    images = []
+
+    # Load raw images
+    print(f"Loading raw images from {args.raw_images}")
+    raw_images = load_images_from_folder(args.raw_images)
+    print(f"Loaded {len(raw_images)} raw images.")
+
+    # Optional composed image
+    composed_img = None
+    if args.composed_image:
+        if os.path.exists(args.composed_image):
+            print(f"Loading composed image: {args.composed_image}")
+            composed_img = cv2.imread(args.composed_image)
+        else:
+            print("Composed image path not found.")
+            return
+
+    # Decide order
+    if composed_img is not None:
+        if args.order == "before":
+            images = [composed_img] + raw_images
+        elif args.order == "after":
+            images = raw_images + [composed_img]
+        else:
+            print("You must specify --order before|after when using --composed_image")
+            return
+    else:
+        images = raw_images
+
+    stitch_images(images, args.output)
+
+
+if __name__ == "__main__":
+    main()
