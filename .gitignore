@@ -1,0 +1,9 @@
+
+
+# exclude python environment folder
+.env
+
+# exclude image folrders
+raw_images
+composed
+output
