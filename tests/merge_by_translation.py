@@ -1,6 +1,6 @@
 import cv2
-from src.merge_by_traslation import merge_by_translation
-from src.main import load_images_from_folder
+from image_stitching.merge_by_traslation import merge_by_translation
+from image_stitching.main import load_images_from_folder
 def compute_merge_with_log(base, new_img, iteration):
     print(f"Iteration {iteration}:")
     merged, shift, response = merge_by_translation(base, new_img)

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "image-stitching"
+version = "0.1.0"
+description = "Tool for stitching exported canvas images"
+authors = [{ name = "Lorenzo Londero" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "opencv-python>=4.13.0.92",
+    "matplotlib>=3.10.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.1.1",
+    "pipdeptree>=2.31.0",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["src"]

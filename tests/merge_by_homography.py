@@ -1,6 +1,6 @@
 import cv2
-from src.merge_by_homography import merge_by_homography
-from src.main import load_images_from_folder
+from image_stitching.merge_by_homography import merge_by_homography
+from image_stitching.main import load_images_from_folder
 def compute_merge_with_log(base, new_img, iteration):
     print(f"Iteration {iteration}:")
     merged = merge_by_homography(base, new_img)
