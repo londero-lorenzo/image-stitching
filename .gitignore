@@ -3,8 +3,11 @@
 # exclude python environment folder
 .env
 
-# exclude pycache
+# exclude pycache and jupyter files
 **/__pycache__/
+.jupyter_ystore.db
+**/.ipynb_checkpoints
+
 
 
 # exclude image folders
