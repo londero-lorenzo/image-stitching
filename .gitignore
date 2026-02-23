@@ -2,6 +2,7 @@
 
 # exclude python environment folder
 .env
+**/*.egg-info
 
 # exclude pycache and jupyter files
 **/__pycache__/
